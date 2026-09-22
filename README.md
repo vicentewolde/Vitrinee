@@ -13,9 +13,10 @@ Built in eight days (22–30 September 2026) for the **"Find Your Way"**
 hackathon (Tellus Cooperative, Stellar ecosystem). **Stellar testnet only, by
 design** — see [docs/CONTEXTO.md](docs/CONTEXTO.md).
 
-**Estado: día 1 en curso** (2026-09-22). Checkout x402 con `@x402/express`
-contra el facilitator "Built on Stellar", agente demo en español, orden en el
-adapter mock tras el settle. Falta la primera compra real (USDC de testnet).
+**Estado: día 1 cerrado** (2026-09-22). Un agente x402 estándar compra en
+la tienda mock pagando USDC real de testnet a través del facilitator "Built on
+Stellar": [primera compra](https://stellar.expert/explorer/testnet/tx/ef86ca2fb6b3fbbe32e89b23c7159a4b13dc02e251bb83a7e75e0ac68f86080f)
+(9,46 USDC, 24 s). Recibo firmado y anclaje en Soroban llegan el día 2.
 Bitácora en [docs/BITACORA.md](docs/BITACORA.md).
 
 ---

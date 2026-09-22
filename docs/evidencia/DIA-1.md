@@ -114,6 +114,47 @@ Sin USDC en la cuenta del agente, el mismo comando sin `--dry-run` termina en:
 (Ese error viene de la simulación Soroban que hace `@x402/stellar` antes de
 firmar: el agente descubre que no puede pagar sin molestar al facilitator.)
 
-## Compra real
+## Compra real · `pnpm test:integration` (22 de septiembre, 11:20 Chile)
 
-Pendiente de USDC en la cuenta del agente. Se agrega aquí al ejecutarse.
+```
+apps/agent test:integration: ✓ compra real contra Stellar testnet > answers a real 402 from the real facilitator (dry run, needs no USDC)  1084ms
+apps/agent test:integration: ✓ compra real contra Stellar testnet > buys one product for real: USDC moves, the order exists, the tx is on Horizon  24716ms
+
+  instrucción  "cómprame un café de grano y envíalo a Ñuñoa"
+  elegido      Café de grano Ñuñoa 250 g × 1 ("cafe" en el nombre, "grano" en el nombre)
+  precio       8.990 CLP c/u → 9.4631579 USDC en total
+  envío        Ñuñoa, CL
+→ POST /checkout/cafe-nunoa-250
+← 402 Pago requerido
+  cobro        9.4631579 USDC (94631579 stroops) → GC5Z…VCII · fees patrocinados por el facilitator
+→ firmando auth entry con GAGR…QPOM
+→ POST /checkout/cafe-nunoa-250 + PAYMENT-SIGNATURE
+[gateway] checkout completed { orderId: 'ord_mucrhcq85d377d2f30', status: 'paid', platformOrderId: 'mock-0001',
+  txHash: 'ef86ca2fb6b3fbbe32e89b23c7159a4b13dc02e251bb83a7e75e0ac68f86080f', amountUSDC: '9.4631579' }
+← 200 pagado y ordenado
+  pedido       ord_mucrhcq85d377d2f30 · mock mock-0001 · paid
+  tx           https://stellar.expert/explorer/testnet/tx/ef86ca2fb6b3fbbe32e89b23c7159a4b13dc02e251bb83a7e75e0ac68f86080f
+  tiempo       24.1 s
+```
+
+### Confirmación en Horizon
+
+```
+$ curl https://horizon-testnet.stellar.org/transactions/ef86ca2f…86080f
+  successful True | ledger 4812648 | created_at 2026-09-22T14:20:27Z
+  source      GDIPM2BCVZDM33O2ZMGKOFMXI4S6I4ORG6MXR4OSMYCIO5URYQNUULZ5   (relayer del facilitator)
+  fee_account GA6THKUY2XJZOBRFMEQMMEADSCQLCZ2QMQWAWMMDXBTE7SARKAXVH7TL   (fee bump: fees patrocinados)
+  fee 23099 stroops · 1 operación (invokeHostFunction → transfer USDC)
+
+$ …/transactions/ef86ca2f…86080f/effects
+  account_debited  GAGRRWU5CEYAMHUMVO6DZBXAV7YTQTO2QE7R2KO3TUEN6QR7GRVXQPOM  9.4631579 USDC   (agente)
+  account_credited GC5ZY7UJ7CKD7O7YURRSDIDVYEETYP2JXPKUL5E6GIWHUPAH5DCIVCII  9.4631579 USDC   (merchant payTo)
+
+saldos después:
+  agente    10.5368421 USDC · 9999.9999900 XLM   (el XLM no se movió: el agente no pagó fees)
+  merchant  29.4631579 USDC · 9999.9999900 XLM
+```
+
+Lo que prueba: el dinero fue directo del agente al merchant en una sola
+transacción sometida por el facilitator; Vitrinee no tocó fondos ni llaves de
+pago. La tienda creó el pedido `mock-0001` solo después de ese settle.

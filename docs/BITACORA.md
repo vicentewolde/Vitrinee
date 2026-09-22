@@ -7,12 +7,12 @@
 
 ## Estado actual
 
-**Fecha:** 2026-09-22 · **Último día cerrado:** 0 · **En curso:** día 1, "el agente paga" (adelantado al 22)
+**Fecha:** 2026-09-22 · **Último día cerrado:** 1 (adelantado al 22) · **Siguiente:** día 2, "recibo y anclaje"
 
 | | |
 |---|---|
 | Tests TypeScript | **57** rápidos (core 23 · adapters 6 · gateway 11 · agent 9 · scripts 8) |
-| Tests de integración | 2 escritos (402 real · compra real), pendientes de USDC |
+| Tests de integración | **2** contra testnet real (402 real · compra real) |
 | Tests Rust | 0 (día 2) |
 | Red | testnet, protocolo 28 |
 | Contrato desplegado | ninguno aún |
@@ -22,7 +22,7 @@
 | Día | Fecha | Qué queda demostrable | Estado |
 |---|---|---|---|
 | 0 | mar 22 | `pnpm test` verde; manifest servido desde el mock | ✅ cerrado |
-| 1 | mié 23 | Compra x402 real con tx hash en stellar.expert | en curso (arrancado el 22) |
+| 1 | mié 23 | Compra x402 real con tx hash en stellar.expert | ✅ cerrado el 22 |
 | 2 | jue 24 | Recibo firmado, hash anclado, verificación en verde y en rojo | pendiente |
 | 3 | vie 25 | Pedido real en Jumpseller segundos después del pago | pendiente |
 | 4 | sáb 26 | URL pública; dashboard; agente contra el deploy | pendiente |
@@ -33,14 +33,19 @@
 
 ---
 
-## Día 1 · "El agente paga" — en curso (arrancado mar 22 por la tarde)
+## Día 1 · "El agente paga" — cerrado mar 22 (un día antes del plan)
 
 **Qué significa.** Un cliente x402 estándar puede leer la tienda, pedir un
 producto, recibir un 402 con el precio exacto en USDC, firmar la autorización
 Soroban y pagar; la tienda solo crea el pedido cuando el facilitator ya
 liquidó el dinero en la cuenta del merchant.
 
-**Qué quedó demostrable (sin USDC todavía).**
+**Qué quedó demostrable.**
+
+- **Compra real en testnet:** `cómprame un café de grano y envíalo a Ñuñoa` →
+  9,4631579 USDC del agente al merchant, orden `mock-0001`, tx
+  [`ef86ca2f…86080f`](https://stellar.expert/explorer/testnet/tx/ef86ca2fb6b3fbbe32e89b23c7159a4b13dc02e251bb83a7e75e0ac68f86080f)
+  confirmada en Horizon, 24,1 s de punta a punta ([evidencia](evidencia/DIA-1.md)).
 
 - `pnpm bootstrap`: tres cuentas testnet fondeadas por Friendbot, trustlines
   USDC abiertas, `.env.local` escrito sin imprimir secretos
@@ -58,8 +63,11 @@ liquidó el dinero en la cuenta del merchant.
 - 22 tests nuevos sin red: el flujo completo 402 → pago → orden corre en CI
   con un facilitator simulado; la integración real vive en `test:integration`.
 
-**Pendiente para cerrar el día.** USDC de testnet en la cuenta del agente
-(`GAGRRWU5…QPOM`) y una compra real con tx hash en stellar.expert.
+**Qué se rompió / queda abierto.** Nada roto. El tiempo total (24 s) supera
+la meta de 20 s del video: la mayor parte es simulación Soroban del lado
+del cliente más el settle del facilitator; se mide por fase el día 5 (hardening).
+Agregar `Idempotency-Key` y decodificar el pagador desde el XDR quedó
+probado en código pero la idempotencia formal es del día 2.
 
 **Qué se aprendió.** Con `upfront`, el SDK no llama a `verify`
 ([V-10](DECISIONES.md)); `pnpm` anidado agrega un `--` extra a los argumentos
